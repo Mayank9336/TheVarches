@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — The Varches</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #0d0b0a; --parchment: #f5f0e8; --cream: #faf7f2;
+      --charcoal: #1a1815; --sidebar: #141210; --panel: #1e1b18;
+      --border: rgba(200,169,110,0.15); --accent: #c8a96e; --accent-dark: #9a7a42;
+      --green: #5a9a5a; --red: #b8432d; --warm-gray: #8a7d72;
+    }
+    body { background: var(--charcoal); color: var(--parchment); font-family: 'Cormorant Garamond', serif; }
+
+    /* LOGIN */
+    .login-page {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: var(--charcoal);
+      position: relative; overflow: hidden;
+    }
+    .login-page::before {
+      content: 'ADMIN';
+      position: absolute; font-family: 'Playfair Display', serif;
+      font-size: 40vw; font-weight: 900; color: rgba(255,255,255,0.015);
+      pointer-events: none; user-select: none;
+    }
+    .login-box {
+      width: 400px; background: var(--panel);
+      padding: 3.5rem; border: 1px solid var(--border);
+      position: relative;
+    }
+    .login-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem; font-weight: 900; letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 0.3rem;
+    }
+    .login-logo span { color: var(--accent); }
+    .login-sub {
+      font-family: 'Space Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.3em; text-transform: uppercase; color: var(--warm-gray);
+      margin-bottom: 2.5rem;
+    }
+    .login-field { margin-bottom: 1.2rem; }
+    .login-field label {
+      display: block; font-family: 'Space Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 0.4rem;
+    }
+    .login-field input {
+      width: 100%; background: rgba(245,240,232,0.04);
+      border: 1px solid var(--border); padding: 0.9rem 1rem;
+      color: var(--parchment); font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem; outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .login-field input:focus { border-color: var(--accent); background: rgba(200,169,110,0.05); }
+    .login-btn {
+      width: 100%; background: var(--accent); color: var(--ink);
+      border: none; padding: 1rem;
+      font-family: 'Space Mono', monospace; font-size: 0.7rem;
+      letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer;
+      transition: background 0.2s; margin-top: 0.5rem;
+    }
+    .login-btn:hover { background: var(--parchment); }
+    .login-error { color: var(--red); font-size: 0.85rem; margin-top: 1rem; font-style: italic; }
+
+    /* DASHBOARD */
+    .dashboard { display: none; min-height: 100vh; }
+    .dashboard.active { display: flex; }
+
+    .sidebar {
+      width: 240px; flex-shrink: 0;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      padding: 2rem 0;
+      position: sticky; top: 0; height: 100vh;
+    }
+    .sidebar-logo {
+      padding: 0 2rem 2rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+    .sidebar-logo .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem; font-weight: 900; letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .sidebar-logo .logo-text span { color: var(--accent); }
+    .sidebar-logo .admin-badge {
+      font-family: 'Space Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.3em; text-transform: uppercase; color: var(--warm-gray);
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 0.8rem;
+      padding: 0.75rem 2rem;
+      font-family: 'Space Mono', monospace; font-size: 0.62rem;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--warm-gray); cursor: pointer;
+      transition: color 0.2s, background 0.2s;
+      border-left: 2px solid transparent;
+    }
+    .nav-item:hover { color: var(--parchment); background: rgba(245,240,232,0.03); }
+    .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(200,169,110,0.05); }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .sidebar-bottom { margin-top: auto; padding: 1.5rem 2rem 0; border-top: 1px solid var(--border); }
+    .logout-btn {
+      width: 100%; background: transparent;
+      border: 1px solid var(--border); color: var(--warm-gray);
+      padding: 0.7rem; font-family: 'Space Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+    .main { flex: 1; overflow-y: auto; }
+
+    .topbar {
+      padding: 1.5rem 3rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; background: var(--charcoal); z-index: 50;
+    }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; }
+    .topbar-right { display: flex; gap: 1rem; align-items: center; }
+    .admin-badge-top {
+      font-family: 'Space Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--warm-gray);
+    }
+
+    .content { padding: 2.5rem 3rem; }
+
+    /* STATS CARDS */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5px; margin-bottom: 2.5rem; }
+    .stat-card {
+      background: var(--panel); padding: 2rem;
+      border-top: 2px solid var(--border);
+      transition: border-color 0.2s;
+    }
+    .stat-card:hover { border-top-color: var(--accent); }
+    .stat-label {
+      font-family: 'Space Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.25em; text-transform: uppercase; color: var(--warm-gray);
+      margin-bottom: 0.7rem;
+    }
+    .stat-value {
+      font-family: 'Playfair Display', serif; font-size: 2.2rem;
+      font-weight: 700; color: var(--parchment);
+    }
+    .stat-sub { font-size: 0.8rem; color: var(--warm-gray); margin-top: 0.3rem; }
+
+    /* TABLES */
+    .table-card {
+      background: var(--panel); border: 1px solid var(--border);
+    }
+    .table-header {
+      padding: 1.5rem 2rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .table-header h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      font-family: 'Space Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--warm-gray);
+      padding: 1rem 2rem; text-align: left; border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 1rem 2rem; border-bottom: 1px solid rgba(200,169,110,0.07);
+      font-size: 0.9rem; color: rgba(245,240,232,0.8);
+    }
+    tr:hover td { background: rgba(245,240,232,0.02); }
+    .status-badge {
+      display: inline-block; padding: 0.2rem 0.7rem;
+      font-family: 'Space Mono', monospace; font-size: 0.55rem;
+      letter-spacing: 0.15em; text-transform: uppercase;
+    }
+    .status-badge.pending { background: rgba(200,169,110,0.15); color: var(--accent); }
+    .status-badge.confirmed { background: rgba(90,154,90,0.15); color: var(--green); }
+    .status-badge.shipped { background: rgba(90,90,200,0.15); color: #7a7acc; }
+    .status-badge.delivered { background: rgba(90,154,90,0.2); color: #7acc7a; }
+    .status-badge.cancelled { background: rgba(184,67,45,0.15); color: var(--red); }
+    .status-badge.available { background: rgba(90,154,90,0.15); color: var(--green); }
+    .status-badge.sold { background: rgba(184,67,45,0.15); color: var(--red); }
+
+    /* BUTTONS */
+    .btn {
+      font-family: 'Space Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0.5rem 1rem; border: none; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: var(--ink); }
+    .btn-primary:hover { background: var(--parchment); }
+    .btn-danger { background: transparent; border: 1px solid var(--red); color: var(--red); }
+    .btn-danger:hover { background: var(--red); color: white; }
+    .btn-sm { padding: 0.35rem 0.8rem; font-size: 0.55rem; }
+
+    /* FORM PANEL */
+    .form-panel {
+      background: var(--panel); border: 1px solid var(--border); padding: 2.5rem;
+      margin-bottom: 2rem;
+    }
+    .form-panel h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; margin-bottom: 2rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.2rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group label {
+      font-family: 'Space Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent);
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      background: rgba(245,240,232,0.04); border: 1px solid var(--border);
+      padding: 0.8rem 1rem; color: var(--parchment);
+      font-family: 'Cormorant Garamond', serif; font-size: 1rem;
+      outline: none; transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+    .form-group select option { background: var(--panel); }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .form-full { grid-column: 1 / -1; }
+
+    /* IMAGE UPLOAD */
+    .upload-zone {
+      border: 2px dashed var(--border); padding: 2.5rem;
+      text-align: center; cursor: pointer; transition: border-color 0.2s;
+    }
+    .upload-zone:hover { border-color: var(--accent); }
+    .upload-zone.dragging { border-color: var(--accent); background: rgba(200,169,110,0.05); }
+    .upload-zone p { color: var(--warm-gray); font-size: 0.9rem; margin-top: 0.8rem; }
+    .upload-zone span {
+      font-family: 'Space Mono', monospace; font-size: 0.6rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent);
+    }
+    .upload-preview {
+      width: 100%; max-height: 200px; object-fit: contain;
+      margin-top: 1rem; border: 1px solid var(--border);
+    }
+
+    /* TABS */
+    .section-tab { display: none; }
+    .section-tab.active { display: block; }
+
+    /* TOAST */
+    .toast-c { position: fixed; bottom: 2rem; right: 2rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
+    .toast {
+      background: var(--panel); color: var(--parchment);
+      padding: 0.9rem 1.3rem; font-family: 'Space Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.1em; display: flex; gap: 0.8rem;
+      min-width: 260px; border-left: 3px solid var(--accent);
+      transform: translateX(120%); transition: transform 0.3s;
+    }
+    .toast.show { transform: translateX(0); }
+    .toast.ok { border-left-color: var(--green); }
+    .toast.err { border-left-color: var(--red); }
+  </style>
+</head>
+<body>
+<div class="toast-c" id="toastC"></div>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage" class="login-page">
+  <div class="login-box">
+    <div class="login-logo">The <span>Varches</span></div>
+    <div class="login-sub">Admin Panel</div>
+    <div class="login-field">
+      <label>Email</label>
+      <input type="email" id="loginEmail" value="admin@thevarches.com" />
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••" onkeypress="if(event.key==='Enter')doLogin()" />
+    </div>
+    <button class="login-btn" onclick="doLogin()">Enter Dashboard →</button>
+    <div class="login-error" id="loginError" style="display:none"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="dashboard">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">The <span>Varches</span></div>
+      <div class="admin-badge">Admin Panel</div>
+    </div>
+    <div class="nav-item active" onclick="showTab('overview')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Overview
+    </div>
+    <div class="nav-item" onclick="showTab('sketches')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Sketches
+    </div>
+    <div class="nav-item" onclick="showTab('add')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Add Sketch
+    </div>
+    <div class="nav-item" onclick="showTab('orders')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      Orders
+    </div>
+    <div class="nav-item" onclick="showTab('inquiries')">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Inquiries
+    </div>
+    <div class="sidebar-bottom">
+      <a href="index.html" target="_blank" style="display:block; text-align:center; font-family:'Space Mono',monospace; font-size:0.6rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--warm-gray); text-decoration:none; margin-bottom:0.8rem; transition:color 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--warm-gray)'">View Site ↗</a>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title" id="pageTitle">Overview</div>
+      <div class="topbar-right">
+        <span class="admin-badge-top" id="adminName">Admin</span>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- OVERVIEW TAB -->
+      <div class="section-tab active" id="tab-overview">
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card"><div class="stat-label">Total Sketches</div><div class="stat-value" id="s1">—</div></div>
+          <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-value" id="s2">—</div></div>
+          <div class="stat-card"><div class="stat-label">Revenue</div><div class="stat-value" id="s3">—</div></div>
+          <div class="stat-card"><div class="stat-label">Inquiries</div><div class="stat-value" id="s4">—</div></div>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Recent Orders</h3>
+            <button class="btn btn-primary btn-sm" onclick="showTab('orders')">View All</button>
+          </div>
+          <table><thead><tr><th>Order #</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody id="recentOrders"><tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--warm-gray);font-style:italic">Loading...</td></tr></tbody></table>
+        </div>
+      </div>
+
+      <!-- SKETCHES TAB -->
+      <div class="section-tab" id="tab-sketches">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>All Sketches</h3>
+            <button class="btn btn-primary btn-sm" onclick="showTab('add')">+ Add New</button>
+          </div>
+          <table><thead><tr><th>Image</th><th>Title</th><th>Category</th><th>Price</th><th>Medium</th><th>Stock</th><th>Actions</th></tr></thead>
+          <tbody id="sketchesTable"><tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--warm-gray);font-style:italic">Loading...</td></tr></tbody></table>
+        </div>
+      </div>
+
+      <!-- ADD SKETCH TAB -->
+      <div class="section-tab" id="tab-add">
+        <div class="form-panel">
+          <h3 id="formTitle">Add New Sketch</h3>
+          <input type="hidden" id="editId" />
+          <div class="form-row">
+            <div class="form-group">
+              <label>Title *</label>
+              <input type="text" id="f-title" placeholder="Sketch title" />
+            </div>
+            <div class="form-group">
+              <label>Price (₹) *</label>
+              <input type="number" id="f-price" placeholder="e.g. 1500" min="0" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Category</label>
+              <select id="f-cat"><option value="">Select category</option></select>
+            </div>
+            <div class="form-group">
+              <label>Medium</label>
+              <input type="text" id="f-medium" placeholder="Charcoal, Graphite, Ink..." />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Dimensions</label>
+              <input type="text" id="f-dim" placeholder="A4, 30x40cm..." />
+            </div>
+            <div class="form-group">
+              <label>Stock Quantity</label>
+              <input type="number" id="f-stock" value="1" min="0" />
+            </div>
+          </div>
+          <div class="form-row form-full" style="grid-template-columns:1fr">
+            <div class="form-group">
+              <label>Description</label>
+              <textarea id="f-desc" placeholder="Describe this piece..."></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Tags (comma-separated)</label>
+              <input type="text" id="f-tags" placeholder="portrait,charcoal,dark" />
+            </div>
+            <div class="form-group" style="flex-direction:row; align-items:center; gap:1rem; padding-top:1.5rem">
+              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer">
+                <input type="checkbox" id="f-original" checked /> Is Original
+              </label>
+              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer">
+                <input type="checkbox" id="f-featured" /> Featured
+              </label>
+            </div>
+          </div>
+
+          <!-- IMAGE UPLOAD -->
+          <div class="form-group" style="margin-bottom:1.5rem">
+            <label>Sketch Image</label>
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('imgFile').click()"
+              ondragover="event.preventDefault();this.classList.add('dragging')"
+              ondragleave="this.classList.remove('dragging')"
+              ondrop="handleDrop(event)">
+              <svg width="36" height="36" fill="none" stroke="var(--warm-gray)" stroke-width="1" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <p>Drop image here or click to upload</p>
+              <span>JPEG · PNG · WEBP · Max 10MB</span>
+              <img id="uploadPreview" class="upload-preview" style="display:none" />
+            </div>
+            <input type="file" id="imgFile" accept="image/*" style="display:none" onchange="handleFileSelect(this.files[0])" />
+            <input type="hidden" id="f-img" />
+          </div>
+
+          <div style="display:flex;gap:1rem">
+            <button class="btn btn-primary" onclick="saveSketch()">Save Sketch →</button>
+            <button class="btn" style="background:transparent;border:1px solid var(--border);color:var(--warm-gray)" onclick="resetForm()">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORDERS TAB -->
+      <div class="section-tab" id="tab-orders">
+        <div class="table-card">
+          <div class="table-header"><h3>All Orders</h3></div>
+          <table><thead><tr><th>Order #</th><th>Customer</th><th>Email</th><th>Items</th><th>Total</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+          <tbody id="ordersTable"><tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--warm-gray);font-style:italic">Loading...</td></tr></tbody></table>
+        </div>
+      </div>
+
+      <!-- INQUIRIES TAB -->
+      <div class="section-tab" id="tab-inquiries">
+        <div class="table-card">
+          <div class="table-header"><h3>Customer Inquiries</h3></div>
+          <table><thead><tr><th>Name</th><th>Email</th><th>Sketch</th><th>Message</th><th>Date</th></tr></thead>
+          <tbody id="inquiriesTable"><tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--warm-gray);font-style:italic">Loading...</td></tr></tbody></table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = 'http://localhost:5000/api';
+  let token = localStorage.getItem('tv_token');
+  let categories = [];
+
+  // ---- AUTH ----
+  if (token) showDashboard();
+
+  async function doLogin() {
+    const email = document.getElementById('loginEmail').value;
+    const pass = document.getElementById('loginPass').value;
+    const errEl = document.getElementById('loginError');
+    errEl.style.display = 'none';
+
+    try {
+      const res = await fetch(`${API}/admin/login`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password: pass })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        token = data.token;
+        localStorage.setItem('tv_token', token);
+        localStorage.setItem('tv_user', data.user.username);
+        showDashboard();
+      } else {
+        errEl.textContent = data.error || 'Login failed';
+        errEl.style.display = 'block';
+      }
+    } catch {
+      errEl.textContent = 'Cannot connect to server. Make sure backend is running.';
+      errEl.style.display = 'block';
+    }
+  }
+
+  function showDashboard() {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('dashboard').classList.add('active');
+    document.getElementById('adminName').textContent = localStorage.getItem('tv_user') || 'Admin';
+    loadAll();
+  }
+
+  function logout() {
+    localStorage.removeItem('tv_token');
+    localStorage.removeItem('tv_user');
+    location.reload();
+  }
+
+  // ---- TABS ----
+  const tabTitles = { overview:'Overview', sketches:'Sketches', add:'Add Sketch', orders:'Orders', inquiries:'Inquiries' };
+  function showTab(t) {
+    document.querySelectorAll('.section-tab').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + t).classList.add('active');
+    document.getElementById('pageTitle').textContent = tabTitles[t];
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach((el, i) => { if (el.getAttribute('onclick')?.includes(t)) el.classList.add('active'); });
+    if (t === 'orders') loadOrders();
+    if (t === 'inquiries') loadInquiries();
+    if (t === 'sketches') loadSketchesTable();
+    if (t === 'add' && !document.getElementById('editId').value) resetForm();
+  }
+
+  // ---- TOAST ----
+  function toast(msg, type='') {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.innerHTML = `<span>${type==='ok'?'✓':type==='err'?'✕':'✦'}</span> ${msg}`;
+    document.getElementById('toastC').appendChild(t);
+    setTimeout(()=>t.classList.add('show'),10);
+    setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300);},3000);
+  }
+
+  async function authFetch(url, opts={}) {
+    return fetch(API + url, { ...opts, headers: { ...opts.headers, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } });
+  }
+
+  // ---- LOAD ALL ----
+  async function loadAll() {
+    loadStats();
+    loadRecentOrders();
+    loadSketchesTable();
+    loadCategories();
+  }
+
+  async function loadStats() {
+    const res = await authFetch('/admin/stats');
+    if (!res.ok) return;
+    const d = await res.json();
+    document.getElementById('s1').textContent = d.total_sketches;
+    document.getElementById('s2').textContent = d.total_orders;
+    document.getElementById('s3').textContent = `₹${parseFloat(d.total_revenue).toLocaleString('en-IN')}`;
+    document.getElementById('s4').textContent = d.total_inquiries;
+  }
+
+  async function loadCategories() {
+    const res = await fetch(`${API}/categories`);
+    categories = await res.json();
+    const sel = document.getElementById('f-cat');
+    sel.innerHTML = '<option value="">Select category</option>';
+    categories.forEach(c => {
+      const o = document.createElement('option');
+      o.value = c.id; o.textContent = c.name;
+      sel.appendChild(o);
+    });
+  }
+
+  async function loadRecentOrders() {
+    const res = await authFetch('/orders');
+    if (!res.ok) return;
+    const orders = await res.json();
+    const recent = orders.slice(0, 5);
+    const tbody = document.getElementById('recentOrders');
+    if (!recent.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--warm-gray);font-style:italic">No orders yet</td></tr>'; return; }
+    tbody.innerHTML = recent.map(o => `<tr>
+      <td><span style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--accent)">${o.order_number}</span></td>
+      <td>${o.customer_name}</td>
+      <td style="font-family:'Space Mono',monospace">₹${parseFloat(o.total_amount).toLocaleString('en-IN')}</td>
+      <td><span class="status-badge ${o.status}">${o.status}</span></td>
+      <td style="color:var(--warm-gray);font-size:0.8rem">${new Date(o.created_at).toLocaleDateString('en-IN')}</td>
+    </tr>`).join('');
+  }
+
+  async function loadSketchesTable() {
+    const res = await fetch(`${API}/sketches?limit=50`);
+    const data = await res.json();
+    const tbody = document.getElementById('sketchesTable');
+    if (!data.sketches.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--warm-gray);font-style:italic">No sketches added yet</td></tr>'; return; }
+    tbody.innerHTML = data.sketches.map(s => `<tr>
+      <td>${s.image_url ? `<img src="http://localhost:5000${s.image_url}" style="width:50px;height:50px;object-fit:cover;border:1px solid var(--border)">` : `<div style="width:50px;height:50px;background:var(--charcoal);display:flex;align-items:center;justify-content:center;border:1px solid var(--border);color:var(--warm-gray);font-size:0.6rem">No img</div>`}</td>
+      <td style="max-width:200px"><span style="font-family:'Playfair Display',serif;font-size:0.95rem">${s.title}</span></td>
+      <td>${s.category_name || '—'}</td>
+      <td style="font-family:'Space Mono',monospace;color:var(--accent)">₹${parseFloat(s.price).toLocaleString('en-IN')}</td>
+      <td>${s.medium || '—'}</td>
+      <td><span class="status-badge ${s.stock_qty > 0 ? 'available' : 'sold'}">${s.stock_qty > 0 ? `${s.stock_qty} avail` : 'sold'}</span></td>
+      <td><button class="btn btn-sm btn-primary" onclick='editSketch(${JSON.stringify(s).replace(/'/g,"\\'")})'  style="margin-right:0.4rem">Edit</button><button class="btn btn-sm btn-danger" onclick="deleteSketch(${s.id})">Del</button></td>
+    </tr>`).join('');
+  }
+
+  async function loadOrders() {
+    const res = await authFetch('/orders');
+    if (!res.ok) return;
+    const orders = await res.json();
+    const tbody = document.getElementById('ordersTable');
+    if (!orders.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--warm-gray);font-style:italic">No orders yet</td></tr>'; return; }
+    tbody.innerHTML = orders.map(o => `<tr>
+      <td><span style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--accent)">${o.order_number}</span></td>
+      <td>${o.customer_name}</td>
+      <td style="font-size:0.8rem;color:var(--warm-gray)">${o.customer_email}</td>
+      <td style="font-size:0.8rem;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.sketch_titles || '—'}</td>
+      <td style="font-family:'Space Mono',monospace">₹${parseFloat(o.total_amount).toLocaleString('en-IN')}</td>
+      <td>
+        <select onchange="updateStatus(${o.id}, this.value)" style="background:var(--charcoal);border:1px solid var(--border);color:var(--parchment);padding:0.3rem 0.5rem;font-size:0.75rem;cursor:pointer">
+          ${['pending','confirmed','shipped','delivered','cancelled'].map(s => `<option ${o.status===s?'selected':''} value="${s}">${s}</option>`).join('')}
+        </select>
+      </td>
+      <td style="color:var(--warm-gray);font-size:0.8rem">${new Date(o.created_at).toLocaleDateString('en-IN')}</td>
+      <td><span class="status-badge ${o.status}">${o.status}</span></td>
+    </tr>`).join('');
+  }
+
+  async function updateStatus(id, status) {
+    const res = await authFetch(`/orders/${id}/status`, { method:'PUT', body: JSON.stringify({ status }) });
+    if (res.ok) toast('Status updated', 'ok'); else toast('Failed to update', 'err');
+  }
+
+  async function loadInquiries() {
+    const res = await authFetch('/inquiries');
+    if (!res.ok) return;
+    const data = await res.json();
+    const tbody = document.getElementById('inquiriesTable');
+    if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--warm-gray);font-style:italic">No inquiries yet</td></tr>'; return; }
+    tbody.innerHTML = data.map(i => `<tr>
+      <td>${i.name}</td>
+      <td style="font-size:0.8rem;color:var(--accent)">${i.email}</td>
+      <td style="font-size:0.8rem;color:var(--warm-gray)">${i.sketch_title || 'General'}</td>
+      <td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.message}</td>
+      <td style="color:var(--warm-gray);font-size:0.8rem">${new Date(i.created_at).toLocaleDateString('en-IN')}</td>
+    </tr>`).join('');
+  }
+
+  // ---- IMAGE UPLOAD ----
+  function handleFileSelect(file) { if (file) uploadImage(file); }
+  function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('uploadZone').classList.remove('dragging');
+    const file = e.dataTransfer.files[0];
+    if (file) uploadImage(file);
+  }
+
+  async function uploadImage(file) {
+    const formData = new FormData();
+    formData.append('image', file);
+    try {
+      const res = await fetch(`${API}/upload/sketch`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById('f-img').value = data.url;
+        const preview = document.getElementById('uploadPreview');
+        preview.src = `http://localhost:5000${data.url}`;
+        preview.style.display = 'block';
+        toast('Image uploaded!', 'ok');
+      } else {
+        toast(data.error || 'Upload failed', 'err');
+      }
+    } catch {
+      toast('Upload failed. Check server connection.', 'err');
+    }
+  }
+
+  // ---- SAVE SKETCH ----
+  async function saveSketch() {
+    const id = document.getElementById('editId').value;
+    const body = {
+      title: document.getElementById('f-title').value.trim(),
+      price: document.getElementById('f-price').value,
+      category_id: document.getElementById('f-cat').value || null,
+      medium: document.getElementById('f-medium').value,
+      dimensions: document.getElementById('f-dim').value,
+      description: document.getElementById('f-desc').value,
+      stock_qty: document.getElementById('f-stock').value || 1,
+      tags: document.getElementById('f-tags').value,
+      is_original: document.getElementById('f-original').checked,
+      is_featured: document.getElementById('f-featured').checked,
+      image_url: document.getElementById('f-img').value || null,
+    };
+
+    if (!body.title || !body.price) { toast('Title and price are required', 'err'); return; }
+
+    const url = id ? `/sketches/${id}` : '/sketches';
+    const method = id ? 'PUT' : 'POST';
+    const res = await authFetch(url, { method, body: JSON.stringify(body) });
+    const data = await res.json();
+
+    if (res.ok) {
+      toast(id ? 'Sketch updated!' : 'Sketch added!', 'ok');
+      resetForm();
+      loadSketchesTable();
+      loadStats();
+    } else {
+      toast(data.error || 'Failed to save', 'err');
+    }
+  }
+
+  function editSketch(s) {
+    showTab('add');
+    document.getElementById('editId').value = s.id;
+    document.getElementById('formTitle').textContent = 'Edit Sketch';
+    document.getElementById('f-title').value = s.title;
+    document.getElementById('f-price').value = s.price;
+    document.getElementById('f-cat').value = s.category_id || '';
+    document.getElementById('f-medium').value = s.medium || '';
+    document.getElementById('f-dim').value = s.dimensions || '';
+    document.getElementById('f-desc').value = s.description || '';
+    document.getElementById('f-stock').value = s.stock_qty;
+    document.getElementById('f-tags').value = s.tags || '';
+    document.getElementById('f-original').checked = !!s.is_original;
+    document.getElementById('f-featured').checked = !!s.is_featured;
+    document.getElementById('f-img').value = s.image_url || '';
+    if (s.image_url) {
+      const p = document.getElementById('uploadPreview');
+      p.src = `http://localhost:5000${s.image_url}`;
+      p.style.display = 'block';
+    }
+  }
+
+  async function deleteSketch(id) {
+    if (!confirm('Delete this sketch? This cannot be undone.')) return;
+    const res = await authFetch(`/sketches/${id}`, { method: 'DELETE' });
+    if (res.ok) { toast('Sketch deleted', 'ok'); loadSketchesTable(); loadStats(); }
+    else toast('Failed to delete', 'err');
+  }
+
+  function resetForm() {
+    document.getElementById('editId').value = '';
+    document.getElementById('formTitle').textContent = 'Add New Sketch';
+    ['f-title','f-price','f-medium','f-dim','f-desc','f-tags','f-img'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-stock').value = 1;
+    document.getElementById('f-cat').value = '';
+    document.getElementById('f-original').checked = true;
+    document.getElementById('f-featured').checked = false;
+    document.getElementById('uploadPreview').style.display = 'none';
+  }
+</script>
+</body>
+</html>
